@@ -1,8 +1,6 @@
-# Ali's .dotfiles
+# Kai Wang's .dotfiles
 
-I started off [Steven's .dotfiles](https://github.com/stevenwalton/.dotfiles), and changed these as I went.
-After almost two years, it became really cluttered, so I cleaned up and reset the commit history since that just
-had way too many dependencies cloned into it, but not as submodules.
+I started off [Ali's .dotfiles](https://github.com/alihassanijr/.dotfiles), and trying to configure my own.
 
 ## What it contains
 

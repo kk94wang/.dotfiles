@@ -1,0 +1,63 @@
+[submodule "third_party/vim/vifm.vim"]
+	path = third_party/vim/vifm.vim
+	url = https://github.com/vifm/vifm.vim
+[submodule "third_party/zsh/ohmyzsh"]
+	path = third_party/zsh/ohmyzsh
+	url = https://github.com/ohmyzsh/ohmyzsh
+[submodule "third_party/zsh/zsh-autosuggestions"]
+	path = third_party/zsh/zsh-autosuggestions
+	url = https://github.com/zsh-users/zsh-autosuggestions
+[submodule "third_party/vifm"]
+	path = third_party/vifm
+	url = https://github.com/vifm/vifm
+[submodule "third_party/vim/gitbranch"]
+	path = third_party/vim/gitbranch
+	url = https://github.com/itchyny/vim-gitbranch
+[submodule "third_party/vim/lightline"]
+	path = third_party/vim/lightline
+	url = https://github.com/alihassanijr/lightline.vim
+[submodule "third_party/vim/vimwiki"]
+	path = third_party/vim/vimwiki
+	url = https://github.com/vimwiki/vimwiki
+[submodule "third_party/vim/vim-gitgutter"]
+	path = third_party/vim/vim-gitgutter
+	url = https://github.com/airblade/vim-gitgutter.git
+[submodule "third_party/vim/vimtex"]
+	path = third_party/vim/vimtex
+	url = https://github.com/lervag/vimtex
+[submodule "third_party/fzf"]
+	path = third_party/fzf
+	url = https://github.com/junegunn/fzf
+[submodule "third_party/vim/fzf.vim"]
+	path = third_party/vim/fzf.vim
+	url = https://github.com/junegunn/fzf.vim
+[submodule "third_party/htop"]
+	path = third_party/htop
+	url = https://github.com/htop-dev/htop
+[submodule "third_party/vim/vim-markdown-preview"]
+	path = third_party/vim/vim-markdown-preview
+	url = https://github.com/JamshedVesuna/vim-markdown-preview
+[submodule "third_party/zsh/zsh-syntax-highlighting"]
+	path = third_party/zsh/zsh-syntax-highlighting
+	url = https://github.com/zsh-users/zsh-syntax-highlighting
+[submodule "third_party/vim9"]
+	path = third_party/vim9
+	url = https://github.com/vim/vim
+[submodule "third_party/misc/termpdf"]
+	path = third_party/misc/termpdf
+	url = https://github.com/alihassanijr/termpdf.py
+[submodule "third_party/misc/diff-so-fancy"]
+	path = third_party/misc/diff-so-fancy
+	url = https://github.com/so-fancy/diff-so-fancy
+[submodule "third_party/vim/vim-polyglot"]
+	path = third_party/vim/vim-polyglot
+	url = https://github.com/sheerun/vim-polyglot
+[submodule "third_party/vim/goyo.vim"]
+	path = third_party/vim/goyo.vim
+	url = https://github.com/junegunn/goyo.vim
+[submodule "third_party/vim/limelight.vim"]
+	path = third_party/vim/limelight.vim
+	url = https://github.com/junegunn/limelight.vim
+[submodule "third_party/aria2"]
+	path = third_party/aria2
+	url = https://github.com/aria2/aria2
