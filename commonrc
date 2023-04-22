@@ -1,0 +1,269 @@
+# Common rc
+# Things I want in both bash and zsh, because I don't necessarily use zsh all the time.
+
+# Base16 colors
+# Credit: https://github.com/chriskempson/base16-shell
+if [[ -f $HOME/.base16colors ]]; then
+    source $HOME/.base16colors
+fi
+
+# General Exports
+export EDITOR="vim"
+
+# Load local binaries
+export PATH=~/.local/bin:$PATH
+
+# "My Binz"
+# Just a bunch of scripts I use daily that I put in a different repository
+# Because some are exclusive to different devices and I want to keep it branched.
+export PATH=~/.binz/:$PATH
+
+# Bat config
+export BAT_CONFIG_PATH="$HOME/.config/bat/bat.conf"
+
+# ls color scheme
+export LS_COLORS="$(cat ~/.lscolors)"
+
+##########
+# Aliases
+##########
+# Add color and make human readable
+
+# Replace ls with exa
+if [[ -f "$(which exa)" ]]; then
+    alias ls="exa --color=auto"
+    alias lc="exa -l --color=auto"
+    alias la='exa -lah -s name --color=auto'
+    alias lm='exa -lah -s modified --color=auto'
+    alias ll='exa -lah -s size --color=auto'
+fi
+alias df='df -h'
+# Grep to have color, give line number, don't tell me it can't access restricted files (sudo), and don't process binary files (garbage output ):
+alias grep='grep --color=always --line-number --no-messages --binary-files=without-match'
+
+alias ssh='ssh -YC'
+
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    # No window manager for mac
+    # Tmux doesn't like to recognize 256 coloring, so let's force it
+    # -u fixes backspace error thing
+    alias tmux='tmux -2 -u'
+    alias mux="tmux a"
+    # Fixes tmux window renaming
+    DISABLE_AUTO_TITLE="true"
+    # Unset the autonaming for tmux
+    DISABLE_AUTO_TITLE="true"
+fi
+
+# OSX-specific aliases for my mac
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # Zathura in background
+    zat () {
+        zathura "$@" > /dev/null 2>&1 &
+    }
+
+    # Kitty icat and clear icat (iclear)
+    alias icat="kitty +kitten icat --silent --transfer-mode=stream"
+    alias iclear="kitty +kitten icat --silent --clear --transfer-mode=stream"
+
+    # GUI applications
+    alias zoom="open -a zoom.us"
+    alias spotify="open -a Spotify"
+    alias slack="open -a Slack"
+    alias overleaf="open -a Overleaf"
+    alias settings="open -a System\ Settings"
+    alias amph="open -a Amphetamine -g"
+    alias finder="open ~/Documents"
+
+    # Vimwiki markdown to original markdown converter
+    w2md () {
+        if [[ -f ~/.vimwiki2md ]]; then
+            srcf=$1
+            srcfmd=$(echo $srcf|sed -e "s/\.wiki$/.md/")
+            destf=${2:-srcfmd}
+            sed -f ~/.vimwiki2md $srcf > $destf
+        else
+            echo "Conversion from vimwiki markdown to md failed! ~/.vimwiki2md not found."
+        fi
+    }
+fi
+
+
+# SSH-Agent (from scripts/)
+alias sagent='source sagent'
+#source sagent
+if [[ $(hostname) != *"hyperplane"* ]] && [[ $(hostname) != *"scalar"* ]]; then
+    # Don't start ssh agent on compute nodes
+    source sagent
+fi
+
+# Anaconda initializer (from scripts/)
+if [[ "$OSTYPE" == "linux-gnu"* ]] && [[ $(hostname) != *"login"* ]]; then
+    # I only use anaconda on linux compute nodes.
+    source cnda
+fi
+
+# Modules (cluster only)
+###if [[ $(hostname) == "lambda-"* ]]; then
+### Checking based on availability
+### Hostname is a terrible way of doing that, because even lambda test drive
+### machines are named lambda-xxx.
+if [[ -f /etc/profile.d/modules.sh ]]; then
+    source /etc/profile.d/modules.sh
+    # Slurm
+    if [[ "$(module avail)" == *"slurm"* ]]; then
+        module load slurm
+    fi
+    # CUDA
+    if [[ "$(module avail)" == *"cuda11.7"* ]]; then
+        module load cuda11.7
+    fi 
+    # Bright cluster manager shell
+    if [[ "$(module avail)" == *"cmsh"* ]]; then
+        module load cmsh
+    fi
+fi
+
+# Force NCCL to use IPV4
+# export NCCL_SOCKET_FAMILY="AF_INET"
+
+# Custom wandb tmp directory
+MY_WANDB_DIR="$HOME/.tmp/wandb/"
+[ ! -d "$MY_WANDB_DIR" ] && mkdir -p $MY_WANDB_DIR
+export WANDB_DIR="$MY_WANDB_DIR"
+
+# Custom ENROOT config path
+MY_ENROOT="$HOME/.enroot"
+export ENROOT_CONFIG_PATH="$MY_ENROOT"
+
+# My functions
+
+# Who has processes?
+alias whodat='ps haeo user | sort -u'
+
+# IP address lookup
+alias lip="hostname -I | cut -d' ' -f1"
+alias gip="curl -s http://ipinfo.io/ip | cut -d'%' -f1"
+
+# My go-to rsync with deletion
+ry () {
+    rsync -a -H -x -v --numeric-ids --delete --progress -e "ssh -T -o Compression=no -x" $1 $2
+}
+
+# My go-to rsync WITHOUT deletion
+rys () {
+    rsync -a -H -x -v --numeric-ids --ignore-existing --progress -e "ssh -T -o Compression=no -x" $1 $2
+}
+
+# I have a custom "vif" to force it to support true color
+# without upsetting zsh
+# Opens vifm and cds into the directory you :q from.
+vicd() {
+    local dst="$(command vif --choose-dir - "$@")"
+    if [ -z "$dst" ]; then
+        echo 'Directory picking cancelled/failed'
+        return 1
+    fi
+    cd "$dst"
+}
+
+# SMUX: SSH and then attach to tmux
+smux () {
+    ssh -t ${@} 'bash -c "tmux a"'
+}
+
+# OSX-specific env variables
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # DBUS env variable
+    # This is just so that vimtex can communicate with zathura through dbus
+    export DBUS_SESSION_BUS_ADDRESS="unix:path=$DBUS_LAUNCHD_SESSION_BUS_SOCKET"
+fi
+
+# NVIDIA Bug report
+## Handy function when I want to grab logs related to GPU issues quickly
+## and send over to Lambda.
+if [[ -f /usr/bin/nvidia-bug-report.sh ]]; then
+    nvb () {
+        dts=$(date +"%Y%m%d-%H%M%S")
+        nvb_filename="nvidia-bug-report-${dts}.gz"
+        ipmi_filename="ipmitool-${dts}.txt"
+        echo "Storing logs in $nvb_filename and $ipmi_filename"
+        sudo /usr/bin/nvidia-bug-report.sh --output-file $nvb_filename "$@"
+        sudo ipmitool sel elist >> $ipmi_filename
+    }
+fi
+
+# Diff so fancy
+diffs () {
+    diff -u $1 $2 | diff-so-fancy | less
+}
+
+# Google Drive downloader
+# Download locally and rsync to remote no more!
+# Thanks Minchul!
+dget () {
+    drive_url_to_id () {
+        local URL=$1
+        local FILE_ID=${URL#*google.com/}
+        FILE_ID=${FILE_ID#*file\/d\/}
+        FILE_ID=${FILE_ID#*file\/}
+        FILE_ID=${FILE_ID#*files\/}
+        FILE_ID=${FILE_ID#*\?id=}
+        FILE_ID=${FILE_ID/\/view/}
+        echo $FILE_ID
+    }
+    download_from_gdrive() {
+        curl -H "Authorization: Bearer $2" \
+        "https://www.googleapis.com/drive/v3/files/$1?alt=media" -o $3
+    }
+    # Args:
+    if [[ $# -eq 0 ]] || [[ $1 == "--help" ]]; then
+        echo "Google Drive Get (dget)"
+        echo "usage: dget [url | id]"
+        echo "       dget [url | id] [access key]"
+        echo "       dget [url | id] [access key] [output file name]"
+        echo ""
+        echo "       dget https://drive.google.com/file/d/XXXXXX/view"
+        echo ""
+        echo "To get access key, go to https://developers.google.com/oauthplayground/"
+        echo "  and select Drive API v3, then select"
+        echo " \`https://www.googleapis.com/auth/drive.readonly\` and then click "
+        echo " \`Authorize APIs\`, and get to Step 2. Once in step 2, click the blue button"
+        echo " \`Exchange authorization code for tokens\` and you should see your access token"
+        echo " in the JSON shown on the right hand side view."
+    elif [[ $# -eq 1 ]]; then
+        DRIVE_URL=$1
+        FILE_ID=$(drive_url_to_id $DRIVE_URL)
+        echo "Downloading Google Drive file: $DRIVE_URL"
+        echo "ID: $FILE_ID"
+        echo ""
+        echo "Open https://developers.google.com/oauthplayground/"
+        echo "  and select Drive API v3, then select"
+        echo " \`https://www.googleapis.com/auth/drive.readonly\` and then click "
+        echo " \`Authorize APIs\`, and get to Step 2. Once in step 2, click the blue button"
+        echo " \`Exchange authorization code for tokens\` and you should see your access token"
+        echo " in the JSON shown on the right hand side view."
+        echo ""
+        echo "Enter access key: "
+        read DRIVE_ACCESS_KEY
+        echo ""
+        echo "Enter output file name (e.g. file.zip): "
+        read DRIVE_FILENAME
+        download_from_gdrive $FILE_ID $DRIVE_ACCESS_KEY $DRIVE_FILENAME
+    elif [[ $# -eq 1 ]]; then
+        DRIVE_URL=$1
+        FILE_ID=$(drive_url_to_id $DRIVE_URL)
+        DRIVE_ACCESS_KEY=$2
+        echo "Enter output file name (e.g. file.zip): "
+        read DRIVE_FILENAME
+        download_from_gdrive $FILE_ID $DRIVE_ACCESS_KEY $DRIVE_FILENAME
+    elif [[ $# -eq 3 ]]; then
+        DRIVE_URL=$1
+        FILE_ID=$(drive_url_to_id $DRIVE_URL)
+        DRIVE_ACCESS_KEY=$2
+        DRIVE_FILENAME=$3
+        download_from_gdrive $FILE_ID $DRIVE_ACCESS_KEY $DRIVE_FILENAME
+    else
+        echo "Invalid option: $@"
+    fi
+}
